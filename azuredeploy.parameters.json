@@ -1,0 +1,21 @@
+{
+  "$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentParameters.json#",
+  "contentVersion": "1.0.0.0",
+  "parameters": {
+    "CLIENT_ID": {
+      "value": "8eec7c83-835f-48eb-b34b-827bf9b6e852"
+    },
+    "CLIENT_SECRET": {
+      "value": "RtHgr17C-0fIy~Xrq4G5HyF_T4DheP~nI~"
+    },
+    "BASE_URI": {
+      "value": "https://d365fo-promark-test61f22a0bc9840005devaos.cloudax.dynamics.com"
+    },
+    "repoURL": {
+      "value": "https://github.com/vkhutornyi/OAuthCodeFunctionFSCM.git"
+    },
+    "storageAccountType": {
+      "value": "Standard_LRS"
+    }
+  }
+}
