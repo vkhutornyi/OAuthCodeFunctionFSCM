@@ -30,7 +30,7 @@ public static async Task<IActionResult> Run(HttpRequest req, ILogger log)
             {
                 string resp = "";
                 try{
-                    resp = await PostAuthCodeToBCAsync(JsonConvert.SerializeObject(new { code = AuthCode ,state = State}),log);
+                    resp = await PostAuthCodeToBCAsync(JsonConvert.SerializeObject(new {_contract: {code = AuthCode, state = State}}),log);
                     log.LogInformation(resp);
                     dynamic respData = JsonConvert.DeserializeObject(resp);
                     string responseStringMessage = "";
@@ -65,7 +65,7 @@ public static async Task<IActionResult> Run(HttpRequest req, ILogger log)
 
                 string requestBody = await new StreamReader(req.Body).ReadToEndAsync();
 
-                string resp = await PostEventToBCAsync(JsonConvert.SerializeObject(new { inputJson = requestBody}), log);
+                string resp = await PostEventToBCAsync(JsonConvert.SerializeObject(new { inputJson = $"\"_contract\":{requestBody}"}), log);
 log.LogInformation(resp);
                 return new OkObjectResult(resp);
             }
@@ -110,7 +110,7 @@ public static async Task<string> PostAuthCodeToBCAsync(string jsonBody, ILogger 
 
 public static async Task<string> GetBearerTokenAsync()
 {
-    HttpClient client = new HttpClient();
+    HttpClient client = new HttpClient();    
     string SCOPE = $"{BASE_URI}/.default";
 
     //client.DefaultRequestHeaders.Add("Authorization", $"Basic {EncodeTo64(CLIENT_ID + ":" + CLIENT_SECRET)}");
