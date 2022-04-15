@@ -65,8 +65,8 @@ public static async Task<IActionResult> Run(HttpRequest req, ILogger log)
 
                 string requestBody = await new StreamReader(req.Body).ReadToEndAsync();
 
-                string resp = await PostEventToBCAsync(JsonConvert.SerializeObject(new { inputJson = $"\"_contract\":{requestBody}"}), log);
-log.LogInformation(resp);
+                string resp = await PostEventToBCAsync(JsonConvert.SerializeObject(new {inputJson = $"{{\"_contract\"":{requestBody}}}"}), log);
+                log.LogInformation(resp);
                 return new OkObjectResult(resp);
             }
             catch(Exception ex)
