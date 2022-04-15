@@ -29,15 +29,17 @@ public static async Task<IActionResult> Run(HttpRequest req, ILogger log)
             if(AuthCode != null && State != null)
             {
                 string resp = "";
-                try{
-                    resp = await PostAuthCodeToBCAsync(JsonConvert.SerializeObject(new {_contract: {code = AuthCode, state = State}}),log);
+                try
+                {
+                    var requestBodyAuth = new {code = AuthCode, state = State};
+                    resp = await PostAuthCodeToBCAsync(JsonConvert.SerializeObject(new {_contract = requestBodyAuth}),log);
                     log.LogInformation(resp);
                     dynamic respData = JsonConvert.DeserializeObject(resp);
-                    string responseStringMessage = "";
+                    string responseStringMessage = ""; 
                     switch(respData?.value.ToString())
                     {
                         case "OK": 
-                            responseStringMessage = "Authorization successfully passed. Please refresh the Square Settings page in Business Central. You can close this tab.";
+                            responseStringMessage = "Authorization successfully passed. Please refresh the Square Settings page. You can close this tab.";
                             break; 
                         case "FAILED":
                             responseStringMessage = "Authorization failed. Failed to retrieve access token. You can close this tab.";
@@ -61,11 +63,9 @@ public static async Task<IActionResult> Run(HttpRequest req, ILogger log)
         {
             log.LogInformation("C# HTTP trigger function processed a POST request.");
             try{
-                string documentContents = "{\"key1\":\"value\"}";
-
                 string requestBody = await new StreamReader(req.Body).ReadToEndAsync();
-
-                string resp = await PostEventToBCAsync(JsonConvert.SerializeObject(new {inputJson = $"{{\"_contract\"":{requestBody}}}"}), log);
+                
+                string resp = await PostEventToBCAsync(JsonConvert.SerializeObject(new { _contract = requestBody}), log);
                 log.LogInformation(resp);
                 return new OkObjectResult(resp);
             }
@@ -73,7 +73,7 @@ public static async Task<IActionResult> Run(HttpRequest req, ILogger log)
             {
                 return new BadRequestObjectResult(ex.Message); 
             }
-        break; 
+            break; 
         }
         default:
         {
