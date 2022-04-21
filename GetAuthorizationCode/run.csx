@@ -132,7 +132,7 @@ public static async Task<string> GetBearerTokenAsync()
 
     var grantContent = new FormUrlEncodedContent(grantValues); 
 
-    var response = await client.PostAsync($https://login.microsoftonline.com/{AAD_TENANTID}/oauth2/v2.0/token, grantContent);
+    var response = await client.PostAsync($"https://login.microsoftonline.com/{AAD_TENANTID}/oauth2/v2.0/token", grantContent);
 
     var responseString = await response.Content.ReadAsStringAsync();
     dynamic TokenData = JsonConvert.DeserializeObject(responseString);
