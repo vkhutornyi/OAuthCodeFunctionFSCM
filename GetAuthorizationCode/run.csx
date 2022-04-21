@@ -33,20 +33,27 @@ public static async Task<IActionResult> Run(HttpRequest req, ILogger log)
                 {
                     var requestBodyAuth = new {code = AuthCode, state = State};
                     resp = await PostAuthCodeToBCAsync(JsonConvert.SerializeObject(new {_contract = requestBodyAuth}),log);
-                    log.LogInformation(resp);
-                    dynamic respData = JsonConvert.DeserializeObject(resp);
+                    log.LogInformation($"Response from FSC='{resp.ToString()}'");
+                    //dynamic respData = JsonConvert.DeserializeObject(resp);
+                    //log.LogInformation($"Response JSON from FSC={respData}");
                     string responseStringMessage = ""; 
-                    switch(respData?.value.ToString())
+                    //switch(respData?.value.ToString())
+                    switch(resp.ToString())
                     {
-                        case "OK": 
-                            responseStringMessage = "Authorization successfully passed. Please refresh the Square Settings page. You can close this tab.";
+                        case "\"OK\"": 
+                            responseStringMessage = "<h1>Authorization successfully <span style=\"background-color: #ccffcc;\">passed</span>.</h1><h2>Please refresh the Square Integrations page.</h2><p>You can close this tab.</p>";
+                            log.LogInformation($"OK: {resp}");
+                            //return new OkObjectResult(responseStringMessage);
+                            return new ContentResult { Content = responseStringMessage, ContentType = "text/html" };
                             break; 
-                        case "FAILED":
-                            responseStringMessage = "Authorization failed. Failed to retrieve access token. You can close this tab.";
-                            break; 
-
+                        case "\"FAILED\"":
+                            responseStringMessage = "<h1>Authorization <span style=\"background-color: #ff0000;\">failed</span>.</h1><h2>Failed to retrieve an access token.</h2><p>You can close this tab.</p>";
+                            log.LogInformation($"FAILED: {resp}");
+                            //return new NotFoundObjectResult(responseStringMessage);
+                            return new ContentResult { Content = responseStringMessage, ContentType = "text/html" };
+                            break;
                     }
-                    return new OkObjectResult(responseStringMessage);
+                    return new NotFoundObjectResult($"Undefined response from FSC {resp}");
                 }
                 catch(Exception ex) 
                 {
@@ -55,7 +62,9 @@ public static async Task<IActionResult> Run(HttpRequest req, ILogger log)
             }
             else
             {
-                return new BadRequestObjectResult("Authorization denied. You chose to deny access to the app.");
+                string badRequest = "<h1>You cannot execute this Azure Function directly.</h1><p><span style=\"color: #ff0000;\">Authorization denied.</span></p><p>You chose to restrict access to the app.</p>";
+                return new ContentResult { Content = badRequest, ContentType = "text/html" };
+                //return new BadRequestObjectResult("You cannot execute this Azure Function directly. Authorization denied. You chose to restrict access to the app.");
             }
             break;
         }
@@ -64,7 +73,6 @@ public static async Task<IActionResult> Run(HttpRequest req, ILogger log)
             log.LogInformation("C# HTTP trigger function processed a POST request.");
             try{
                 string requestBody = await new StreamReader(req.Body).ReadToEndAsync();
-                
                 string resp = await PostEventToBCAsync(JsonConvert.SerializeObject(new { _contract = requestBody}), log);
                 log.LogInformation(resp);
                 return new OkObjectResult(resp);
@@ -124,7 +132,7 @@ public static async Task<string> GetBearerTokenAsync()
 
     var grantContent = new FormUrlEncodedContent(grantValues); 
 
-    var response = await client.PostAsync($"https://login.microsoftonline.com/{AAD_TENANTID}/oauth2/v2.0/token", grantContent);
+    var response = await client.PostAsync($https://login.microsoftonline.com/{AAD_TENANTID}/oauth2/v2.0/token, grantContent);
 
     var responseString = await response.Content.ReadAsStringAsync();
     dynamic TokenData = JsonConvert.DeserializeObject(responseString);
